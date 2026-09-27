@@ -9,6 +9,8 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { handleError } from "../exceptions";
 import { UserService } from "@/services/user.service";
 import { User } from "@/models/user.model";
+import { postChatStream } from "@/app/http/controllers/chat.controller";
+import { BrowserAgent } from "@/browser-agent";
 
 export const server = (app: Express, PORT: number) => {
     const router = Router();
@@ -110,6 +112,13 @@ export const server = (app: Express, PORT: number) => {
             });
         });
     });
+
+    app.use("/chat", postChatStream);
+    app.get("/test", async (req: Request, res: Response, next: NextFunction) => {
+        const { invokeBrowserAgent } = await BrowserAgent();
+        const fullContent = await invokeBrowserAgent("What are trending techs in AI now");
+        res.json({ result: fullContent });
+    })
 
     app.use(handleError);
 
